@@ -1,3 +1,5 @@
+import commands.CommandsHandler;
+import database.SQL;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,24 +12,31 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
-        System.out.println(update.getMessage().getChatId());
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (update.getMessage().getText().equals("/balance")) {
-                try {
-                    double balance = SQL.getBalance(update.getMessage().getChatId());
-                    SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
-                            .setChatId(update.getMessage().getChatId())
-                            .setText(String.valueOf(balance));
-                    try {
-                        execute(message); // Call method to send the message
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            parseMessage(update);
+        }
+    }
+
+    private void parseMessage(Update update) {
+        String message = update.getMessage().getText();
+        Long userID = update.getMessage().getChatId();
+        SendMessage sendMessage = null;
+        try {
+            if (message.equals("/start")) {
+                String login = update.getMessage().getFrom().getFirstName();
+                CommandsHandler.handleUser(userID, login);
+                sendMessage = new SendMessage().setChatId(userID).setText(Messages.welcome_msg);
+            }
+            if (message.equals("/balance")) {
+                execute(CommandsHandler.getBalance(userID));
             }
 
+
+            if (sendMessage != null) {
+                execute(sendMessage);
+            }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 

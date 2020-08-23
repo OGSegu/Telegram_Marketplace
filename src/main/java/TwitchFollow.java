@@ -1,5 +1,4 @@
 import twitch.FollowSender;
-import twitch.TwitchUser;
 
 import java.io.File;
 

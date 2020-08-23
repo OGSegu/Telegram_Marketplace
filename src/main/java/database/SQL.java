@@ -21,7 +21,8 @@ public class SQL {
     }
 
     public static void registerUser(Long userId, String login) throws SQLException {
-        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("INSERT INTO users (id, userid, login, balance, role) VALUES (DEFAULT, ?, ?, 0.00, ?);")) {
+        try (Connection connection = connect(); PreparedStatement statement = connection
+                .prepareStatement("INSERT INTO users (id, userid, login, balance, role) VALUES (DEFAULT, ?, ?, 0.00, ?);")) {
             statement.setLong(1, userId);
             statement.setString(2, login);
             statement.setString(3, "user");
@@ -64,7 +65,7 @@ public class SQL {
             statement.setDouble(1, amount);
             statement.setLong(2, userId);
             if (statement.executeUpdate() > 0) {
-                System.out.println("Successfully added balance to " + userId);
+                System.out.println("Successfully set balance to " + userId);
             } else {
                 System.out.println("Error");
             }
@@ -81,6 +82,33 @@ public class SQL {
             } else {
                 System.out.println("Error");
             }
+        }
+    }
+
+    public static void addOrder(long userId, String channel, int amount, double price) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection
+                .prepareStatement("INSERT INTO orders (id, userid, login, channel, amount, price, status, createdat) VALUES (DEFAULT, ?, ?, ?, ?, ?, 'Queue', DEFAULT)")) {
+            statement.setLong(1, userId);
+            statement.setString(2, "");
+            statement.setString(3, channel);
+            statement.setInt(4, amount);
+            statement.setDouble(5, price);
+            if (statement.executeUpdate() > 0) {
+                System.out.println("Order was successfully added " + userId);
+            } else {
+                System.out.println("Error");
+            }
+        }
+    }
+
+    public static boolean takeMoney(long userId, double price) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection
+                .prepareStatement("UPDATE users SET balance = ? WHERE userId = ?")) {
+            double balance = getBalance(userId);
+            if (balance < price) return false;
+            statement.setDouble(1, balance - price);
+            statement.setLong(2, userId);
+            return statement.executeUpdate() > 0;
         }
     }
 }

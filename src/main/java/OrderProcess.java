@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderProcess {
-
+    public static final int minAmount = 100;
+    public static final int maxAmount = 5000;
     private final double pricePerOne = 0.001;
 
     private final Bot bot;
@@ -93,7 +94,7 @@ public class OrderProcess {
     }
 
     private boolean validAmount() {
-        if (amount < 1000 || amount > 10000) {
+        if (amount < minAmount || amount > maxAmount) {
             try {
                 bot.execute(new SendMessage().setChatId(userId).setText("Wrong amount. 1000 < amount < 10000"));
                 return false;

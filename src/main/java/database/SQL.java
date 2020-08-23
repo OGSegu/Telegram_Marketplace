@@ -48,6 +48,18 @@ public class SQL {
         }
     }
 
+    public static String getLogin(long userId) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("SELECT login FROM users WHERE userid = ?;")) {
+            statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            String result = "";
+            while (resultSet.next()) {
+                result = resultSet.getString(1);
+            }
+            return result;
+        }
+    }
+
     public static double getBalance(long userId) throws SQLException {
         try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("SELECT balance FROM users WHERE userid = ?;")) {
             statement.setLong(1, userId);
@@ -89,7 +101,7 @@ public class SQL {
         try (Connection connection = connect(); PreparedStatement statement = connection
                 .prepareStatement("INSERT INTO orders (id, userid, login, channel, amount, price, status, createdat) VALUES (DEFAULT, ?, ?, ?, ?, ?, 'Queue', DEFAULT)")) {
             statement.setLong(1, userId);
-            statement.setString(2, "");
+            statement.setString(2, getLogin(userId));
             statement.setString(3, channel);
             statement.setInt(4, amount);
             statement.setDouble(5, price);

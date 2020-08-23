@@ -1,11 +1,8 @@
 import commands.CommandsHandler;
-import database.SQL;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.sql.SQLException;
 
 public class Bot extends TelegramLongPollingBot {
 
@@ -30,8 +27,17 @@ public class Bot extends TelegramLongPollingBot {
             if (message.equals("/balance")) {
                 execute(CommandsHandler.getBalance(userID));
             }
-
-
+            if (message.contains("/order")) {
+                String[] args = message.split(" ");
+                if (args.length != 3) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /order channel amount"));
+                    return;
+                }
+                String channel = args[1];
+                int amount = Integer.parseInt(args[2]);
+                OrderProcess orderProcess = new OrderProcess(this, userID, channel, amount);
+                orderProcess.createOrder();
+            }
             if (sendMessage != null) {
                 execute(sendMessage);
             }

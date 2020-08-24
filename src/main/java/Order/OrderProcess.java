@@ -52,7 +52,7 @@ public class OrderProcess {
         }
     }
 
-    public static void parseCallbackAnswer(String callback) {
+    public static void parseCallbackAnswer(Bot bot, String callback) {
         String[] callbackAnswer = callback.split(":");
         if (callbackAnswer.length != 5) return;
         long userId = Long.parseLong(callbackAnswer[1]);
@@ -65,15 +65,21 @@ public class OrderProcess {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        createOrder(bot, userId, channel, amount, price);
+    }
+
+    private static boolean createOrder(Bot bot, long userId, String channel, int amount, double price) {
         try {
             if (!SQL.takeMoney(userId, price)) {
-                return;
+                return false;
             }
             SQL.addOrder(userId, channel, amount, price);
+            bot.execute(new SendMessage().setChatId(userId).setText("Your order was successfully created."));
             new TwitchFollow(channel, amount).run();
-        } catch (SQLException e) {
+        } catch (SQLException | TelegramApiException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     private boolean validChannel() {
@@ -96,7 +102,7 @@ public class OrderProcess {
     private boolean validAmount() {
         if (amount < minAmount || amount > maxAmount) {
             try {
-                bot.execute(new SendMessage().setChatId(userId).setText("Wrong amount. 1000 < amount < 10000"));
+                bot.execute(new SendMessage().setChatId(userId).setText(String.format("Wrong amount. %d < amount < %d", minAmount, maxAmount)));
                 return false;
             } catch (TelegramApiException e) {
                 e.printStackTrace();

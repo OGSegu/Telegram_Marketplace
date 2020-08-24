@@ -23,7 +23,7 @@ public class Bot extends TelegramLongPollingBot {
         final String callback = update.getCallbackQuery().getData();
         long userId = update.getCallbackQuery().getMessage().getChatId();
         if (callback.contains("start_service")) {
-            OrderProcess.parseCallbackAnswer(callback);
+            OrderProcess.parseCallbackAnswer(this, callback);
         }
         if (callback.equals("cancel_service")) {
             EditMessageText editMessageText = new EditMessageText()

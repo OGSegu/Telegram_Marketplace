@@ -1,5 +1,7 @@
 package database;
 
+import Order.Status;
+
 import java.sql.*;
 
 public class SQL {
@@ -97,19 +99,23 @@ public class SQL {
         }
     }
 
-    public static void addOrder(long userId, String channel, int amount, double price) throws SQLException {
+    public static int addOrder(long userId, String channel, int amount, double price) throws SQLException {
         try (Connection connection = connect(); PreparedStatement statement = connection
-                .prepareStatement("INSERT INTO orders (id, userid, login, channel, amount, price, status, createdat) VALUES (DEFAULT, ?, ?, ?, ?, ?, 'Queue', DEFAULT)")) {
+                .prepareStatement("INSERT INTO orders (id, userid, login, channel, amount, price, status, createdat) VALUES (DEFAULT, ?, ?, ?, ?, ?, 'Queue', DEFAULT) RETURNING id")) {
             statement.setLong(1, userId);
             statement.setString(2, getLogin(userId));
             statement.setString(3, channel);
             statement.setInt(4, amount);
             statement.setDouble(5, price);
-            if (statement.executeUpdate() > 0) {
-                System.out.println("Order was successfully added " + userId);
-            } else {
-                System.out.println("Error");
+            ResultSet resultSet = statement.executeQuery();
+            int id = -1;
+            while (resultSet.next()) {
+                id = resultSet.getInt(1);
             }
+            if (id == -1) {
+                System.out.println("Failed");
+            }
+            return id;
         }
     }
 
@@ -120,6 +126,16 @@ public class SQL {
             if (balance < price) return false;
             statement.setDouble(1, balance - price);
             statement.setLong(2, userId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public static boolean changeOrderStatus(int id, Status state) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection
+                .prepareStatement("UPDATE orders SET status = ? WHERE id = ?")) {
+            String status = state.getDescription();
+            statement.setString(1, status);
+            statement.setInt(2, id);
             return statement.executeUpdate() > 0;
         }
     }

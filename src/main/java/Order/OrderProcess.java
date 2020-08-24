@@ -1,3 +1,7 @@
+package Order;
+
+import Main.Bot;
+import Main.TwitchFollow;
 import database.SQL;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -73,9 +77,11 @@ public class OrderProcess {
             if (!SQL.takeMoney(userId, price)) {
                 return false;
             }
-            SQL.addOrder(userId, channel, amount, price);
+            int id = SQL.addOrder(userId, channel, amount, price);
             bot.execute(new SendMessage().setChatId(userId).setText("Your order was successfully created."));
-            new TwitchFollow(channel, amount).run();
+            TwitchFollow thread = new TwitchFollow(id ,channel, amount);
+            thread.start();
+
         } catch (SQLException | TelegramApiException e) {
             e.printStackTrace();
         }

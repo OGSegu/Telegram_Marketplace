@@ -2,7 +2,7 @@ package Order;
 
 public enum Status {
     QUEUE("Queue"),
-    IN_PROCESS("Process"),
+    IN_PROCESS("In progress"),
     DONE("Done");
 
     private final String description;

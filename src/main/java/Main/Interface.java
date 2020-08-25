@@ -1,5 +1,7 @@
 package Main;
 
+import com.vdurmont.emoji.EmojiParser;
+import commands.CommandsHandler;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -15,10 +17,10 @@ public class Interface {
         KeyboardRow keyboardFirstRow = new KeyboardRow();
         KeyboardRow keyboardSecondRow = new KeyboardRow();
         List<KeyboardRow> keyboard = new ArrayList<>(); // Первая строка
-        keyboardFirstRow.add("Balance");
-        keyboardFirstRow.add("My orders");
-        keyboardSecondRow.add("Order");
-        keyboardSecondRow.add("Support");
+        keyboardFirstRow.add(CommandsHandler.balance_msg);
+        keyboardFirstRow.add(CommandsHandler.my_order_msg);
+        keyboardSecondRow.add(CommandsHandler.order_msg);
+        keyboardSecondRow.add(CommandsHandler.support_msg);
         keyboard.add(keyboardFirstRow);
         keyboard.add(keyboardSecondRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
@@ -31,8 +33,8 @@ public class Interface {
         replyKeyboardMarkup.setResizeKeyboard(true);
         KeyboardRow keyboardFirstRow = new KeyboardRow();
         List<KeyboardRow> keyboard = new ArrayList<>(); // Первая строка
-        keyboardFirstRow.add("Deposit");
-        keyboardFirstRow.add("Home");
+        keyboardFirstRow.add(CommandsHandler.deposit_msg);
+        keyboardFirstRow.add(CommandsHandler.home_msg);
         keyboard.add(keyboardFirstRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;

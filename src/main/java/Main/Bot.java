@@ -2,11 +2,14 @@ package Main;
 
 import Order.OrderProcess;
 import commands.CommandsHandler;
+import database.SQL;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.sql.SQLException;
 
 
 public class Bot extends TelegramLongPollingBot {
@@ -46,19 +49,28 @@ public class Bot extends TelegramLongPollingBot {
         long userID = update.getMessage().getChatId();
         SendMessage sendMessage = null;
         try {
-            if (message.equals("Home")) {
+            if (message.equals(CommandsHandler.home_msg)) {
                 sendMessage = new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.main_menu_msg)
                         .setReplyMarkup(Interface.createMainMenu());
             }
-            if (message.equals("Balance")) {
+            if (message.equals(CommandsHandler.balance_msg)) {
                 sendMessage = new SendMessage()
                         .setChatId(userID)
                         .setText(CommandsHandler.getBalance(userID).getText())
                         .setReplyMarkup(Interface.createBalanceMenu());
             }
-            if (message.equals("Order")) {
+            if (message.equals(CommandsHandler.my_order_msg)) {
+                try {
+                    sendMessage = new SendMessage()
+                            .setChatId(userID)
+                            .setText(SQL.getOrders(userID));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (message.equals(CommandsHandler.order_msg)) {
                 sendMessage = new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.order_menu_msg);

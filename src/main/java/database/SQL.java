@@ -139,4 +139,23 @@ public class SQL {
             return statement.executeUpdate() > 0;
         }
     }
+
+    public static String getOrders(long userID) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        try (Connection connection = connect(); PreparedStatement statement = connection
+                .prepareStatement("SELECT channel, amount, status FROM orders WHERE userID = ? ORDER BY id DESC")) {
+            statement.setLong(1, userID);
+            ResultSet resultSet = statement.executeQuery();
+            int counter = 0;
+            sb.append("Channel | Amount | Status\n");
+            while (resultSet.next()) {
+                sb.append(resultSet.getString(1)).append(" | ");
+                sb.append(resultSet.getInt(2)).append(" | ");
+                sb.append(resultSet.getString(3)).append("\n");
+                counter++;
+                if (counter >= 3) break;
+            }
+        }
+        return sb.toString();
+    }
 }

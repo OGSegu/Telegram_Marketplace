@@ -75,6 +75,11 @@ public class Bot extends TelegramLongPollingBot {
                         .setChatId(userID)
                         .setText(Messages.order_menu_msg);
             }
+            if (message.equals(CommandsHandler.support_msg)) {
+                sendMessage = new SendMessage()
+                        .setChatId(userID)
+                        .setText(Messages.support_msg);
+            }
             if (message.equals("/start")) {
                 String login = update.getMessage().getFrom().getFirstName();
                 CommandsHandler.handleUser(userID, login);

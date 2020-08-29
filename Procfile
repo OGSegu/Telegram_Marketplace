@@ -1,1 +1,1 @@
-web: java -jar out/artifacts/TelegramMarketplace_jar/TelegramMarketplace.jar
+web: java -jar target/TelegramMarketplace-1-0-SNAPSHOT.jar

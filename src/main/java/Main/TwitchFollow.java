@@ -24,7 +24,7 @@ public class TwitchFollow extends Thread {
     public void run() {
         try {
             SQL.changeOrderStatus(id, Status.IN_PROCESS);
-            FollowSender followSender = new FollowSender(new File("10k_tokens.txt"), channel, amount);
+            FollowSender followSender = new FollowSender(Config.token_file, channel, amount, Config.threads);
             followSender.start();
             SQL.changeOrderStatus(id, Status.DONE);
         } catch (SQLException e ) {

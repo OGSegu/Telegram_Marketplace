@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 
 public class Bot extends TelegramLongPollingBot {
@@ -102,7 +104,31 @@ public class Bot extends TelegramLongPollingBot {
                 OrderProcess orderProcess = new OrderProcess(this, userID, channel, amount);
                 orderProcess.createOrder();
             }
-        } catch (TelegramApiException e) {
+            if (message.contains("/promo")) {
+                String[] args = message.split(" ");
+                if (args.length != 2) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /promo code"));
+                    return;
+                }
+                if (args[1].length() != 16) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Code is a 16-digit number"));
+                    return;
+                }
+                String code = args[1];
+                Object[] result = DigiParse.checkCode(code);
+                if (result.length == 0) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Wrong code"));
+                    return;
+                }
+                String channelName = (String) result[0];
+                int amount = (int) result[1];
+                NumberFormat nf = NumberFormat.getInstance();
+                double price = nf.parse(result[2].toString()).doubleValue();
+                SQL.addBalance(userID, price);
+                OrderProcess orderProcess = new OrderProcess(this, userID, channelName, amount, price);
+                orderProcess.createCustomOrder();
+            }
+        } catch (TelegramApiException | SQLException | ParseException e) {
             e.printStackTrace();
         }
     }

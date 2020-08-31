@@ -26,7 +26,7 @@ public class OrderProcess {
 
     private final String channel;
     private final int amount;
-    private double price;
+    private double price = -1;
 
     public OrderProcess(Bot bot, long userId, String channel, int amount) {
         this.bot = bot;
@@ -35,23 +35,55 @@ public class OrderProcess {
         this.amount = amount;
     }
 
+    public OrderProcess(Bot bot, long userId, String channel, int amount, double price) {
+        this.bot = bot;
+        this.userId = userId;
+        this.channel = channel;
+        this.amount = amount;
+        this.price = price;
+    }
+
+    public void createCustomOrder() {
+        if (!validChannel()) {
+            return;
+        }
+        SendMessage sendMessage = new SendMessage().setChatId(userId);
+        if (balance < price) {
+            sendMessage
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$\nYou don't have enough money", channel, amount, price));
+        } else {
+            sendMessage
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$", channel, amount, price))
+                    .setReplyMarkup(createYesNoBtn());
+        }
+        try {
+            bot.execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void createOrder() {
-        if (enoughBalanceToStart() && validChannel() && validAmount()) {
+        if (!enoughBalanceToStart() || !validChannel() || !validAmount()) {
+            return;
+        }
+        if (price == -1) {
             price = amount * pricePerOne;
-            SendMessage sendMessage = new SendMessage().setChatId(userId);
-            if (balance < price) {
-                sendMessage
-                        .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$\nYou don't have enough money", channel, amount, price));
-            } else {
-                sendMessage
-                        .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$", channel, amount, price))
-                        .setReplyMarkup(createYesNoBtn());
-            }
-            try {
-                bot.execute(sendMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        }
+        SendMessage sendMessage = new SendMessage().setChatId(userId);
+        if (balance < price) {
+            sendMessage
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$\nYou don't have enough money", channel, amount, price));
+        } else {
+            sendMessage
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$", channel, amount, price))
+                    .setReplyMarkup(createYesNoBtn());
+        }
+        try {
+            bot.execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 
@@ -68,17 +100,19 @@ public class OrderProcess {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        createOrder(bot, userId, channel, amount, price);
+        createSQLOrder(bot, userId, channel, amount, price);
     }
 
-    private static boolean createOrder(Bot bot, long userId, String channel, int amount, double price) {
+    private static boolean createSQLOrder(Bot bot, long userId, String channel, int amount, double price) {
         try {
-            if (!SQL.takeMoney(userId, price)) {
-                return false;
+            if (price != -1) {
+                if (!SQL.takeMoney(userId, price)) {
+                    return false;
+                }
             }
             int id = SQL.addOrder(userId, channel, amount, price);
             bot.execute(new SendMessage().setChatId(userId).setText("Your order was successfully created."));
-            TwitchFollow thread = new TwitchFollow(id ,channel, amount);
+            TwitchFollow thread = new TwitchFollow(id, channel, amount);
             thread.start();
 
         } catch (SQLException | TelegramApiException e) {

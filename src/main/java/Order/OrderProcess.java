@@ -17,7 +17,7 @@ import java.util.List;
 
 public class OrderProcess {
     public static final int minAmount = 100;
-    public static final int maxAmount = 5000;
+    public static final int maxAmount = 15000;
     private final double pricePerOne = 0.001;
 
     private final Bot bot;
@@ -75,7 +75,7 @@ public class OrderProcess {
 
 
     public void createOrder() {
-        if (!enoughBalanceToStart() || !validChannel() || !validAmount()) {
+        if (!validChannel() || !validAmount()) {
             return;
         }
         if (price == -1) {

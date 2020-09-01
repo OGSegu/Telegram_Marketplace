@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DigiParse {
     private static final String ID_SELLER = "409342";
@@ -38,14 +40,25 @@ public class DigiParse {
         }
         if (response == null) return result;
         JSONObject jsonObject = new JSONObject(response.body());
-        System.out.println(jsonObject.toString());
         try {
             result[2] = jsonObject.getString("amount");
             result[1] = jsonObject.getInt("cnt_goods");
             JSONArray array = jsonObject.getJSONArray("options");
-            result[0] = array.getJSONObject(0).getString("user_data");
+            result[0] = parseChannel(array.getJSONObject(0).getString("user_data"));
         } catch (JSONException e) {
             return result;
+        }
+        return result;
+    }
+
+    public static String parseChannel(String channel) {
+        String result = channel;
+        if (channel.contains("twitch.tv")) {
+            Pattern pattern = Pattern.compile("(?<=twitch.tv/).+");
+            Matcher matcher = pattern.matcher(channel);
+            while (matcher.find()) {
+                result = matcher.group();
+            }
         }
         return result;
     }

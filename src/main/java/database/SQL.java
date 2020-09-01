@@ -12,8 +12,6 @@ public class SQL {
     public static Connection connect() throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
-
-
     public static boolean userExists(long userId) throws SQLException {
         try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE userid = ?;")) {
             statement.setLong(1, userId);

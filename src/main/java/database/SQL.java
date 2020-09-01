@@ -7,7 +7,7 @@ import java.sql.*;
 public class SQL {
     private static final String user = "postgres";
     private static final String password = "7018022";
-    private static final String url = "jdbc:postgresql://localhost:5432/postgres";
+    private static final String url = "jdbc:postgresql://localhost:5432/telegram_market";
 
     public static Connection connect() throws SQLException {
         return DriverManager.getConnection(url, user, password);
@@ -157,5 +157,20 @@ public class SQL {
             }
         }
         return sb.toString();
+    }
+
+    public static boolean promoExists(String code) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("SELECT * FROM promos WHERE code = ?;")) {
+            statement.setString(1, code);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next();
+        }
+    }
+
+    public static void addPromo(String code) throws SQLException {
+        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("INSERT INTO promos (code) VALUES (?);")) {
+            statement.setString(1, code);
+            statement.executeUpdate();
+        }
     }
 }

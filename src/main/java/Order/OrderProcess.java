@@ -33,6 +33,11 @@ public class OrderProcess {
         this.userId = userId;
         this.channel = channel;
         this.amount = amount;
+        try {
+            balance = SQL.getBalance(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public OrderProcess(Bot bot, long userId, String channel, int amount, double price) {
@@ -41,6 +46,11 @@ public class OrderProcess {
         this.channel = channel;
         this.amount = amount;
         this.price = price;
+        try {
+            balance = SQL.getBalance(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void createCustomOrder() {
@@ -50,17 +60,17 @@ public class OrderProcess {
         SendMessage sendMessage = new SendMessage().setChatId(userId);
         if (balance < price) {
             sendMessage
-                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$\nYou don't have enough money", channel, amount, price));
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$\nYou don't have enough money", channel, amount));
         } else {
             sendMessage
-                    .setText(String.format("Order\nFollow to: %s\nAmount: %d\nPrice: %.2f$", channel, amount, price))
-                    .setReplyMarkup(createYesNoBtn());
+                    .setText(String.format("Order\nFollow to: %s\nAmount: %d", channel, amount));
         }
         try {
             bot.execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+        createSQLOrder(bot, userId, channel, amount, price);
     }
 
 

@@ -120,6 +120,12 @@ public class Bot extends TelegramLongPollingBot {
                     execute(new SendMessage().setChatId(userID).setText("Error! Wrong code"));
                     return;
                 }
+                if (SQL.promoExists(code)) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Promo was already used"));
+                    return;
+                } else {
+                    SQL.addPromo(code);
+                }
                 String channelName = (String) result[0];
                 int amount = (int) result[1];
                 NumberFormat nf = NumberFormat.getInstance();

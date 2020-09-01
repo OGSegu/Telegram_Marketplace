@@ -4,7 +4,6 @@ import Order.Status;
 import database.SQL;
 import twitch.FollowSender;
 
-import java.io.File;
 import java.sql.SQLException;
 
 public class TwitchFollow extends Thread {

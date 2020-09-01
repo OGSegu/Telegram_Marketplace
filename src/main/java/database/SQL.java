@@ -7,7 +7,7 @@ import java.sql.*;
 public class SQL {
     private static final String user = "postgres";
     private static final String password = "7018022";
-    private static final String url = "jdbc:postgresql://localhost:5432/telegram_market";
+    private static final String url = "jdbc:postgresql://localhost:5432/postgres";
 
     public static Connection connect() throws SQLException {
         return DriverManager.getConnection(url, user, password);

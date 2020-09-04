@@ -104,10 +104,10 @@ public class Bot extends TelegramLongPollingBot {
                 OrderProcess orderProcess = new OrderProcess(this, userID, channel, amount);
                 orderProcess.createOrder();
             }
-            if (message.contains("/promo")) {
+            if (message.contains("/dig_promo")) {
                 String[] args = message.split(" ");
                 if (args.length != 2) {
-                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /promo code"));
+                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /dig_promo code"));
                     return;
                 }
                 if (args[1].length() != 16) {
@@ -120,11 +120,11 @@ public class Bot extends TelegramLongPollingBot {
                     execute(new SendMessage().setChatId(userID).setText("Error! Wrong code"));
                     return;
                 }
-                if (SQL.promoExists(code)) {
+                if (SQL.digPromoExists(code)) {
                     execute(new SendMessage().setChatId(userID).setText("Error! Promo was already used"));
                     return;
                 } else {
-                    SQL.addPromo(code);
+                    SQL.addDigPromo(code);
                 }
                 String channelName = (String) result[0];
                 int amount = (int) result[1];
@@ -133,6 +133,34 @@ public class Bot extends TelegramLongPollingBot {
                 SQL.addBalance(userID, price);
                 OrderProcess orderProcess = new OrderProcess(this, userID, channelName, amount, price);
                 orderProcess.createCustomOrder();
+            }
+            if (message.contains("/promo")) {
+                String[] args = message.split(" ");
+                if (args.length != 2) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /promo code"));
+                    return;
+                }
+                if (args[1].length() != 16) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Code is a 16-digit number"));
+                    return;
+                }
+                String code = args[1];
+                if (!SQL.promoExists(code)) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Wrong code"));
+                    return;
+                }
+                if (SQL.isPromoUsed(code, userID)) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Promocode was already used"));
+                    return;
+                }
+                double amount = SQL.usePromo(code);
+                if (amount == -1) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Promocode expired"));
+                    return;
+                }
+                SQL.addUserUsedPromo(code, userID);
+                SQL.addBalance(userID, amount);
+                execute(new SendMessage().setChatId(userID).setText(amount + "$ was successfully added to your balance"));
             }
         } catch (TelegramApiException | SQLException | ParseException e) {
             e.printStackTrace();

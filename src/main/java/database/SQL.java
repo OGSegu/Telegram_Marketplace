@@ -218,7 +218,7 @@ public class SQL {
     }
 
     public static void addPromo(String code, double amount, int usage) throws SQLException {
-        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("INSERT INTO dig_promos (code, amount, usage) VALUES (?, ?, ?);")) {
+        try (Connection connection = connect(); PreparedStatement statement = connection.prepareStatement("INSERT INTO promos (code, amount, usage) VALUES (?, ?, ?);")) {
             statement.setString(1, code);
             statement.setDouble(2, amount);
             statement.setInt(3, usage);

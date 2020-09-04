@@ -1,10 +1,16 @@
 package commands;
 
+import Main.Interface;
+import Main.Messages;
 import com.vdurmont.emoji.EmojiParser;
 import database.SQL;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Random;
 
 public class CommandsHandler {
 
@@ -15,6 +21,15 @@ public class CommandsHandler {
     public static final String deposit_msg = EmojiParser.parseToUnicode(":credit_card: Deposit");
     public static final String home_msg = EmojiParser.parseToUnicode(":back: Home");
 
+
+    public static String genCode() {
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 16; i++) {
+            sb.append((char) (random.nextInt(25) + 65));
+        }
+        return sb.toString();
+    }
 
     public static SendMessage getBalance(Long userID) {
         double balance = 0;

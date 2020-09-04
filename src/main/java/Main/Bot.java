@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
+import static commands.CommandsHandler.genCode;
+
 
 public class Bot extends TelegramLongPollingBot {
 
@@ -49,49 +51,46 @@ public class Bot extends TelegramLongPollingBot {
     private void parseMessage(Update update) {
         String message = update.getMessage().getText();
         long userID = update.getMessage().getChatId();
-        SendMessage sendMessage = null;
+
         try {
             if (message.equals(CommandsHandler.home_msg)) {
-                sendMessage = new SendMessage()
+                execute(new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.main_menu_msg)
-                        .setReplyMarkup(Interface.createMainMenu());
+                        .setReplyMarkup(Interface.createMainMenu()));
             }
             if (message.equals(CommandsHandler.balance_msg)) {
-                sendMessage = new SendMessage()
+                execute(new SendMessage()
                         .setChatId(userID)
                         .setText(CommandsHandler.getBalance(userID).getText())
-                        .setReplyMarkup(Interface.createBalanceMenu());
+                        .setReplyMarkup(Interface.createBalanceMenu()));
             }
             if (message.equals(CommandsHandler.my_order_msg)) {
                 try {
-                    sendMessage = new SendMessage()
+                    execute(new SendMessage()
                             .setChatId(userID)
-                            .setText(SQL.getOrders(userID));
+                            .setText(SQL.getOrders(userID)));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
             if (message.equals(CommandsHandler.order_msg)) {
-                sendMessage = new SendMessage()
+                execute(new SendMessage()
                         .setChatId(userID)
-                        .setText(Messages.order_menu_msg);
+                        .setText(Messages.order_menu_msg));
             }
             if (message.equals(CommandsHandler.support_msg)) {
-                sendMessage = new SendMessage()
+                execute(new SendMessage()
                         .setChatId(userID)
-                        .setText(Messages.support_msg);
+                        .setText(Messages.support_msg));
             }
             if (message.equals("/start")) {
                 String login = update.getMessage().getFrom().getFirstName();
                 CommandsHandler.handleUser(userID, login);
-                sendMessage = new SendMessage()
+                execute(new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.main_menu_msg)
-                        .setReplyMarkup(Interface.createMainMenu());
-            }
-            if (sendMessage != null) {
-                execute(sendMessage);
+                        .setReplyMarkup(Interface.createMainMenu()));
             }
             if (message.contains("/order")) {
                 String[] args = message.split(" ");
@@ -162,6 +161,27 @@ public class Bot extends TelegramLongPollingBot {
                 SQL.addBalance(userID, amount);
                 execute(new SendMessage().setChatId(userID).setText(amount + "$ was successfully added to your balance"));
             }
+
+            if (message.contains("/addpromo")) {
+                if (userID != 380962008) execute(new SendMessage().setChatId(userID).setText("You're not an admin"));
+                String[] parsedCmd = message.split(" ");
+                if (parsedCmd.length != 3) {
+                    execute(new SendMessage().setChatId(userID).setText("Error! Example: /addpromo amount usage"));
+                    return;
+                }
+                String code = genCode();
+                double amount = -1;
+                int usage = Integer.parseInt(parsedCmd[2]);
+                try {
+                    NumberFormat nf = NumberFormat.getInstance();
+                    amount = nf.parse(parsedCmd[1]).doubleValue();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                execute(new SendMessage().setChatId(userID).setText(code + " | Amount: " + amount + "$"));
+                SQL.addPromo(code, amount, usage);
+            }
+
         } catch (TelegramApiException | SQLException | ParseException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package Main;
 
-import Order.OrderProcess;
+import deposit.Deposit;
+import order.OrderProcess;
 import commands.CommandsHandler;
 import database.SQL;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -58,18 +59,21 @@ public class Bot extends TelegramLongPollingBot {
                         .setChatId(userID)
                         .setText(Messages.main_menu_msg)
                         .setReplyMarkup(Interface.createMainMenu()));
+                return;
             }
             if (message.equals(CommandsHandler.balance_msg)) {
                 execute(new SendMessage()
                         .setChatId(userID)
                         .setText(CommandsHandler.getBalance(userID).getText())
                         .setReplyMarkup(Interface.createBalanceMenu()));
+                return;
             }
             if (message.equals(CommandsHandler.my_order_msg)) {
                 try {
                     execute(new SendMessage()
                             .setChatId(userID)
                             .setText(SQL.getOrders(userID)));
+                    return;
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -78,11 +82,17 @@ public class Bot extends TelegramLongPollingBot {
                 execute(new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.order_menu_msg));
+                return;
             }
             if (message.equals(CommandsHandler.support_msg)) {
                 execute(new SendMessage()
                         .setChatId(userID)
                         .setText(Messages.support_msg));
+                return;
+            }
+            if (message.equals(CommandsHandler.deposit_msg)) {
+                Deposit deposit = new Deposit(userID);
+                execute(deposit.genDepositMsg());
             }
             if (message.equals("/start")) {
                 String login = update.getMessage().getFrom().getFirstName();
@@ -91,6 +101,7 @@ public class Bot extends TelegramLongPollingBot {
                         .setChatId(userID)
                         .setText(Messages.main_menu_msg)
                         .setReplyMarkup(Interface.createMainMenu()));
+                return;
             }
             if (message.contains("/order")) {
                 String[] args = message.split(" ");
@@ -160,6 +171,7 @@ public class Bot extends TelegramLongPollingBot {
                 SQL.addUserUsedPromo(code, userID);
                 SQL.addBalance(userID, amount);
                 execute(new SendMessage().setChatId(userID).setText(amount + "$ was successfully added to your balance"));
+                return;
             }
 
             if (message.contains("/addpromo")) {
@@ -180,6 +192,7 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 execute(new SendMessage().setChatId(userID).setText(code + " | Amount: " + amount + "$"));
                 SQL.addPromo(code, amount, usage);
+                return;
             }
 
         } catch (TelegramApiException | SQLException | ParseException e) {

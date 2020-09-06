@@ -1,15 +1,10 @@
 package commands;
 
-import Main.Interface;
-import Main.Messages;
 import com.vdurmont.emoji.EmojiParser;
 import database.SQL;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.sql.SQLException;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Random;
 
 public class CommandsHandler {
@@ -53,5 +48,9 @@ public class CommandsHandler {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void generatePayment(Long userId) {
+
     }
 }

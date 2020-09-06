@@ -1,6 +1,6 @@
 package Main;
 
-import Order.Status;
+import order.Status;
 import database.SQL;
 import twitch.FollowSender;
 

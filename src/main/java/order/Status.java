@@ -1,4 +1,4 @@
-package Order;
+package order;
 
 public enum Status {
     QUEUE("Queue"),

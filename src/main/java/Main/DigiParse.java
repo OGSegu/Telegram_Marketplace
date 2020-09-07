@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,7 +43,7 @@ public class DigiParse {
         if (response == null) return result;
         JSONObject jsonObject = new JSONObject(response.body());
         try {
-            result[2] = jsonObject.getString("amount");
+            result[2] = jsonObject.getString("amount_usd");
             result[1] = jsonObject.getInt("cnt_goods");
             JSONArray array = jsonObject.getJSONArray("options");
             result[0] = parseChannel(array.getJSONObject(0).getString("user_data"));
